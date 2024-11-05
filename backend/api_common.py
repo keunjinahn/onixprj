@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 import os
 import json
 from functools import wraps
-# import pandas as pd
+import pandas as pd
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Color, Alignment, Border, Side
@@ -104,12 +104,12 @@ manager.create_api(CustomerTbl
                    , methods=['GET', 'DELETE', 'PATCH', 'POST']
                    , allow_patch_many=True)
 
-manager.create_api(EventLogTbl
-                   , results_per_page=10000
-                   , url_prefix='/api/v1'
-                   , collection_name='event_log_list'
-                   , methods=['GET', 'DELETE', 'PATCH', 'POST']
-                   , allow_patch_many=True)
+# manager.create_api(EventLogTbl
+#                    , results_per_page=10000
+#                    , url_prefix='/api/v1'
+#                    , collection_name='event_log_list'
+#                    , methods=['GET', 'DELETE', 'PATCH', 'POST']
+#                    , allow_patch_many=True)
 
 @app.route('/make-data/event-list', methods=['GET'])
 def write_event_list_api():
@@ -451,3 +451,53 @@ def check_passwd_api():
     if find_user is not None :
         return make_response(jsonify({"result":1}), 200)   
     return make_response(jsonify({"result":0}), 200)   
+
+
+
+# 추가된 부분
+
+def check_columns(df):
+    # DataFrame 객체를 데이터베이스의 구성과 같게 재구성
+    # 컬럼이 존재하지 않으면 None으로 채운다.
+    # 데이터베이스에 존재하지 않는 컬럼이 있으면 버린다.
+    # 순서가 바뀌어 있다면 복원한다.
+    # *** '컬럼명' 기준으로 검사함 ***
+    columns = list(df.columns)
+    valid = ['GPS수집시간', '위도', '경도', '충격', '속도', '공회전', '배터리', '온도', '습도']
+    check_map = [columns.index(v) if v in columns else -1 for v in valid]
+
+    result = pd.DataFrame()
+    for i, v in enumerate(valid):
+        result[valid[i]] = df.iloc[:, check_map[i]] if v != -1 else None
+
+    # eventEndTime과 CreatedTime을 생성한다.
+    result['GPS수집시간'] = pd.to_datetime(result['GPS수집시간'])
+    result.insert(1, 'eventEndTime', result['GPS수집시간'] + timedelta(seconds=10))
+    result['CreatedTime'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # db와 컬럼명 일치하도록 변경
+    db_cols = ['eventStartTime', 'eventEndTime', 'latitude', 'longitude', 'impact'
+                , 'speed', 'idle',  'battery', 'temperature', 'humidity', 'createdTime']
+    result.columns = db_cols
+    return result
+
+@app.route('/api/v1/excel-upload', methods=['POST'])
+def except_event_xl():
+    # 파일 줄 때 한 개의 리스트에 전부 담아서 줘야 함
+    if 'files' not in request.files:
+        return jsonify({"error":"No files part"}, 400)
+    
+    files = request.files.getlist('files')
+    data_count = 0
+    for file in files:
+        df = pd.read_excel(file, engine='openpyxl')
+        df = check_columns(df)
+        data_count += len(df)
+        df.to_sql('tbeventlog', con=db.engine, if_exists='append', index=False)
+
+    result = {
+        "file_count": len(files),
+        "data_count": data_count
+    }
+
+    return make_response(jsonify(result), 200)
