@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 print ("module [backend_model] loaded")
-__all__ = ["table_fireprj.py"]
+__all__ = ["table_fireprj.py", "table_onix.py"]
