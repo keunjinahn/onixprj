@@ -55,6 +55,40 @@ const routes = [{
   path: '/manage',
   name: 'manage',
   component: View.SubView,
+  redirect: { name: 'vehicleManage' },
+  beforeEnter,
+  children: [
+    {
+      path: 'vehicleManage',
+      name: 'vehicleManage',
+      component: View.SensorManage,
+      meta: { breadcrumb: [{ text: '관리', disabled: true }, { text: '차량 관리', disabled: true }] },
+      props: true,
+      beforeEnter
+    },
+    {
+      path: 'driverManage',
+      name: 'driverManage',
+      component: View.RepeaterManage,
+      meta: { breadcrumb: [{ text: '관리', disabled: true }, { text: '운전자 관리', disabled: true }] },
+      props: true,
+      beforeEnter
+    },
+    {
+      path: 'eventManage',
+      name: 'eventManage',
+      component: View.ReceiverManage,
+      meta: { breadcrumb: [{ text: '관리', disabled: true }, { text: '이벤트 관리', disabled: true }] },
+      props: true,
+      beforeEnter
+    },
+    
+  ]
+},
+{
+  path: '/manage',
+  name: 'manage',
+  component: View.SubView,
   redirect: { name: 'sensor_manage' },
   beforeEnter,
   children: [

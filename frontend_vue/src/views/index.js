@@ -16,3 +16,7 @@ export { default as SensorDashboard } from './SensorDashboard'
 export { default as RepeaterEvent } from './RepeaterEvent'
 export { default as CrmManage } from './CrmManage'
 export { default as SensorLogEvent } from './SensorLogEvent'
+
+export { default as VehicleManage } from './VehicleManage'
+export { default as DriverManage } from './DriverManage'
+export { default as EventManage } from './EventManage'
