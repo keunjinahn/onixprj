@@ -99,7 +99,7 @@ export default {
         this.files.forEach((file, index) => {
           formData.append('files', file);
         });
-        let {data} = await this.$http.post('upload', formData)
+        let {data} = await this.$http.post('excel-upload', formData)
       }
     },
 

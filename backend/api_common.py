@@ -453,28 +453,51 @@ def check_passwd_api():
     return make_response(jsonify({"result":0}), 200)   
 
 
-# 엑셀 파일 받아오기
-@app.route('/api/v1/upload', methods=['POST'])
+
+# 추가된 부분
+
+def check_columns(df):
+    # DataFrame 객체를 데이터베이스의 구성과 같게 재구성
+    # 컬럼이 존재하지 않으면 None으로 채운다.
+    # 데이터베이스에 존재하지 않는 컬럼이 있으면 버린다.
+    # 순서가 바뀌어 있다면 복원한다.
+    # *** '컬럼명' 기준으로 검사함 ***
+    columns = list(df.columns)
+    valid = ['GPS수집시간', '위도', '경도', '충격', '속도', '공회전', '배터리', '온도', '습도']
+    check_map = [columns.index(v) if v in columns else -1 for v in valid]
+
+    result = pd.DataFrame()
+    for i, v in enumerate(valid):
+        result[valid[i]] = df.iloc[:, check_map[i]] if v != -1 else None
+
+    # eventEndTime과 CreatedTime을 생성한다.
+    result['GPS수집시간'] = pd.to_datetime(result['GPS수집시간'])
+    result.insert(1, 'eventEndTime', result['GPS수집시간'] + timedelta(seconds=10))
+    result['CreatedTime'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # db와 컬럼명 일치하도록 변경
+    db_cols = ['eventStartTime', 'eventEndTime', 'latitude', 'longitude', 'impact'
+                , 'speed', 'idle',  'battery', 'temperature', 'humidity', 'createdTime']
+    result.columns = db_cols
+    return result
+
+@app.route('/api/v1/excel-upload', methods=['POST'])
 def except_event_xl():
+    # 파일 줄 때 한 개의 리스트에 전부 담아서 줘야 함
     if 'files' not in request.files:
         return jsonify({"error":"No files part"}, 400)
     
     files = request.files.getlist('files')
-    first = files[0]
-    df = pd.read_excel(first, engine='openpyxl')
+    data_count = 0
+    for file in files:
+        df = pd.read_excel(file, engine='openpyxl')
+        df = check_columns(df)
+        data_count += len(df)
+        df.to_sql('tbeventlog', con=db.engine, if_exists='append', index=False)
 
-    xl_cols = ['GPS수집시간', '위도', '경도', '충격', '속도', '공회전', '배터리', '온도', '습도']
-    table_map = ['eventStartTime', 'eventEndTime', 'latitude', 'longitude', 'impact', 'speed', 'idle',  'battery', 'temperature', 'humidity', 'createdTime']
-    
-    # 임시
-    df.insert(1, 'new_time', df['GPS수집시간'])
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    df['now'] = now
+    result = {
+        "file_count": len(files),
+        "data_count": data_count
+    }
 
-    df.columns = table_map
-    # print(df.head())
-
-    
-    df.to_sql('tbeventlog', con=db.engine, if_exists='append', index=False)
-
-    return make_response(jsonify({"result":0}), 200)
+    return make_response(jsonify(result), 200)
