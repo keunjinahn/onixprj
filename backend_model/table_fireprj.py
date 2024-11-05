@@ -128,3 +128,20 @@ class UserTbl(db.Model):
 #     inout_id = db.Column('inout_id', db.Integer, default='00')
 #     event_datetime = db.Column('event_datetime', db.DateTime)
 #     customer = db.relationship('CustomerTbl')
+
+
+class TbEventLog(db.Model):
+    __tablename__ = 'tbeventlog'
+
+    idx = db.Column('idx', db.Integer, primary_key=True)
+    eventStartTime = db.Column('eventStartTime', db.DateTime)
+    eventEndTime = db.Column('eventEndTime', db.DateTime)
+    latitude = db.Column('latitude', db.Float)
+    longitude = db.Column('longitude', db.Float)
+    impact = db.Column('impact', db.Float)
+    speed = db.Column('speed', db.Integer)
+    idle = db.Column('idle', db.Integer)
+    battery = db.Column('battery', db.Integer)
+    temperature = db.Column('temperature', db.Float)
+    humidity = db.Column('humidity', db.Float)
+    createdTime = db.Column('createdTime', db.DateTime)

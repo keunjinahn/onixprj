@@ -25,6 +25,15 @@
                 <div class="ml-1">조회</div>
               </v-btn>
             </v-col>
+            <v-col cols="2">
+              <input type="file" webkitdirectory @change="handleFolderUpload" multiple />
+              <v-btn depressed dark big
+                      color="light-blue darken-2"
+                      @click="uploadFiles">
+                
+                <div class="ml-1">xl업로드</div>
+              </v-btn>
+            </v-col>
             <!-- <v-col cols="1">
               <v-btn depressed dark big
                       color="light-blue darken-2"
@@ -80,40 +89,53 @@ export default {
   },
   components: {},
   methods: {
-
-    async getSensorEvent() {
-      const { page, itemsPerPage, sortBy, sortDesc } = this.event.options;
-      try {
-        let filters_or = []
-        let filters_and = []
-        let order_by = []
-        order_by.push({field: "event_log_idx", direction: 'desc'})
-        if (this.sensor.search) {
-          filters_or.push({name: 'event', op: 'has', val: {name: "event_category", op: "like", val: `%${this.sensor.search}%`}});
-          filters_or.push({name: 'customer', op: 'has', val: {name: "customer_name", op: "like", val: `%${this.sensor.search}%`}});
-        }        
-        let q = {
-          filters: [{or: filters_or}, {and: filters_and}],
-          order_by
-        }
-        let params = {
-          q: q,
-          results_per_page: itemsPerPage,
-          page: page,
-
-        };
-        let { data } = await this.$http.get("event_log_list", { params });
-        this.event.total = data.num_results;
-        this.event.data = data.objects.map((v, i) => {
-          v._index = i + (page - 1) * itemsPerPage + 1;
-          return v;
-        });
-      } catch (err) {
-        console.error(err);
-      } finally {
-        this.event.loading = false;
-      }    
+    handleFolderUpload(event) {
+      this.files = Array.from(event.target.files);
     },
+    async uploadFiles() {
+      if (this.files.length > 0) {
+        const formData = new FormData();
+
+        this.files.forEach((file, index) => {
+          formData.append('files', file);
+        });
+        let {data} = await this.$http.post('upload', formData)
+      }
+    },
+
+    // async getSensorEvent() {
+    //   const { page, itemsPerPage, sortBy, sortDesc } = this.event.options;
+    //   try {
+    //     let filters_or = []
+    //     let filters_and = []
+    //     let order_by = []
+    //     order_by.push({field: "event_log_idx", direction: 'desc'})
+    //     if (this.sensor.search) {
+    //       filters_or.push({name: 'event', op: 'has', val: {name: "event_category", op: "like", val: `%${this.sensor.search}%`}});
+    //       filters_or.push({name: 'customer', op: 'has', val: {name: "customer_name", op: "like", val: `%${this.sensor.search}%`}});
+    //     }        
+    //     let q = {
+    //       filters: [{or: filters_or}, {and: filters_and}],
+    //       order_by
+    //     }
+    //     let params = {
+    //       q: q,
+    //       results_per_page: itemsPerPage,
+    //       page: page,
+
+    //     };
+    //     let { data } = await this.$http.get("event_log_list", { params });
+    //     this.event.total = data.num_results;
+    //     this.event.data = data.objects.map((v, i) => {
+    //       v._index = i + (page - 1) * itemsPerPage + 1;
+    //       return v;
+    //     });
+    //   } catch (err) {
+    //     console.error(err);
+    //   } finally {
+    //     this.event.loading = false;
+    //   }    
+    // },
     
     async downloadExcel() {
       let params = {
@@ -184,6 +206,7 @@ export default {
   },
   data() {
     return {
+      files: [],
       sensor: {
         selectedId: '',
         headers: [

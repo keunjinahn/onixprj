@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 import os
 import json
 from functools import wraps
-# import pandas as pd
+import pandas as pd
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Color, Alignment, Border, Side
@@ -104,12 +104,12 @@ manager.create_api(CustomerTbl
                    , methods=['GET', 'DELETE', 'PATCH', 'POST']
                    , allow_patch_many=True)
 
-manager.create_api(EventLogTbl
-                   , results_per_page=10000
-                   , url_prefix='/api/v1'
-                   , collection_name='event_log_list'
-                   , methods=['GET', 'DELETE', 'PATCH', 'POST']
-                   , allow_patch_many=True)
+# manager.create_api(EventLogTbl
+#                    , results_per_page=10000
+#                    , url_prefix='/api/v1'
+#                    , collection_name='event_log_list'
+#                    , methods=['GET', 'DELETE', 'PATCH', 'POST']
+#                    , allow_patch_many=True)
 
 @app.route('/make-data/event-list', methods=['GET'])
 def write_event_list_api():
@@ -451,3 +451,30 @@ def check_passwd_api():
     if find_user is not None :
         return make_response(jsonify({"result":1}), 200)   
     return make_response(jsonify({"result":0}), 200)   
+
+
+# 엑셀 파일 받아오기
+@app.route('/api/v1/upload', methods=['POST'])
+def except_event_xl():
+    if 'files' not in request.files:
+        return jsonify({"error":"No files part"}, 400)
+    
+    files = request.files.getlist('files')
+    first = files[0]
+    df = pd.read_excel(first, engine='openpyxl')
+
+    xl_cols = ['GPS수집시간', '위도', '경도', '충격', '속도', '공회전', '배터리', '온도', '습도']
+    table_map = ['eventStartTime', 'eventEndTime', 'latitude', 'longitude', 'impact', 'speed', 'idle',  'battery', 'temperature', 'humidity', 'createdTime']
+    
+    # 임시
+    df.insert(1, 'new_time', df['GPS수집시간'])
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    df['now'] = now
+
+    df.columns = table_map
+    # print(df.head())
+
+    
+    df.to_sql('tbeventlog', con=db.engine, if_exists='append', index=False)
+
+    return make_response(jsonify({"result":0}), 200)

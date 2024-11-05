@@ -196,41 +196,41 @@ export default {
         this.repeater.loading = false;
       }   
     },
-    async onRepeaterItemClick(item,row){
-      this.repeater.selectedId = item.id
-      if(row != null)
-        row.select(true);
-      const { page, itemsPerPage, sortBy, sortDesc } = this.event.options;
-      try {
-        let filters_or = []
-        let filters_and = []
-        let order_by = []
-        filters_and.push({name: 'fk_customer_idx', op: 'eq', val: item.fk_customer_idx})
-        filters_and.push({name: 'repeater_id', op: 'eq', val: item.repeater_id})
-        order_by.push({field: "event_log_idx", direction: 'desc'})
-        let q = {
-          filters: [{or: filters_or}, {and: filters_and}],
-          order_by
-        }
-        let params = {
-          q: q,
-          results_per_page: itemsPerPage,
-          page: page,
+    // async onRepeaterItemClick(item,row){
+    //   this.repeater.selectedId = item.id
+    //   if(row != null)
+    //     row.select(true);
+    //   const { page, itemsPerPage, sortBy, sortDesc } = this.event.options;
+    //   try {
+    //     let filters_or = []
+    //     let filters_and = []
+    //     let order_by = []
+    //     filters_and.push({name: 'fk_customer_idx', op: 'eq', val: item.fk_customer_idx})
+    //     filters_and.push({name: 'repeater_id', op: 'eq', val: item.repeater_id})
+    //     order_by.push({field: "event_log_idx", direction: 'desc'})
+    //     let q = {
+    //       filters: [{or: filters_or}, {and: filters_and}],
+    //       order_by
+    //     }
+    //     let params = {
+    //       q: q,
+    //       results_per_page: itemsPerPage,
+    //       page: page,
 
-        };
-        let { data } = await this.$http.get("event_log_list", { params });
-        this.event.total = data.num_results;
-        this.event.data = data.objects.map((v, i) => {
-          v._index = i + (page - 1) * itemsPerPage + 1;
-          return v;
-        });
-        this.selected_repeater = item
-      } catch (err) {
-        console.error(err);
-      } finally {
-        this.event.loading = false;
-      }        
-    },
+    //     };
+    //     let { data } = await this.$http.get("event_log_list", { params });
+    //     this.event.total = data.num_results;
+    //     this.event.data = data.objects.map((v, i) => {
+    //       v._index = i + (page - 1) * itemsPerPage + 1;
+    //       return v;
+    //     });
+    //     this.selected_repeater = item
+    //   } catch (err) {
+    //     console.error(err);
+    //   } finally {
+    //     this.event.loading = false;
+    //   }        
+    // },
     async downloadExcel() {
       let params = {
         "page_name": "repeater_event",

@@ -159,42 +159,42 @@ export default {
         this.sensor.loading = false;
       }   
     },
-    async onSensorItemClick(item){
-      if(item == null) return
-      this.sensor.selectedId = item.id
-      const { page, itemsPerPage, sortBy, sortDesc } = this.event.options;
-      try {
-        let filters_or = []
-        let filters_and = []
-        let order_by = []
-        filters_and.push({name: 'fk_customer_idx', op: 'eq', val: item.fk_customer_idx})
-        filters_and.push({name: 'receiver_id', op: 'eq', val: item.receiver.receiver_id})
-        filters_and.push({name: 'repeater_id', op: 'eq', val: item.repeater.repeater_id})        
-        filters_and.push({name: 'sensor_id', op: 'eq', val: item.sensor_id})
-        order_by.push({field: "event_log_idx", direction: 'desc'})
-        let q = {
-          filters: [{or: filters_or}, {and: filters_and}],
-          order_by
-        }
-        let params = {
-          q: q,
-          results_per_page: itemsPerPage,
-          page: page,
+    // async onSensorItemClick(item){
+    //   if(item == null) return
+    //   this.sensor.selectedId = item.id
+    //   const { page, itemsPerPage, sortBy, sortDesc } = this.event.options;
+    //   try {
+    //     let filters_or = []
+    //     let filters_and = []
+    //     let order_by = []
+    //     filters_and.push({name: 'fk_customer_idx', op: 'eq', val: item.fk_customer_idx})
+    //     filters_and.push({name: 'receiver_id', op: 'eq', val: item.receiver.receiver_id})
+    //     filters_and.push({name: 'repeater_id', op: 'eq', val: item.repeater.repeater_id})        
+    //     filters_and.push({name: 'sensor_id', op: 'eq', val: item.sensor_id})
+    //     order_by.push({field: "event_log_idx", direction: 'desc'})
+    //     let q = {
+    //       filters: [{or: filters_or}, {and: filters_and}],
+    //       order_by
+    //     }
+    //     let params = {
+    //       q: q,
+    //       results_per_page: itemsPerPage,
+    //       page: page,
 
-        };
-        let { data } = await this.$http.get("event_log_list", { params });
-        this.event.total = data.num_results;
-        this.event.data = data.objects.map((v, i) => {
-          v._index = i + (page - 1) * itemsPerPage + 1;
-          return v;
-        });
-        this.selected_sensor = item
-      } catch (err) {
-        console.error(err);
-      } finally {
-        this.event.loading = false;
-      }        
-    },
+    //     };
+    //     let { data } = await this.$http.get("event_log_list", { params });
+    //     this.event.total = data.num_results;
+    //     this.event.data = data.objects.map((v, i) => {
+    //       v._index = i + (page - 1) * itemsPerPage + 1;
+    //       return v;
+    //     });
+    //     this.selected_sensor = item
+    //   } catch (err) {
+    //     console.error(err);
+    //   } finally {
+    //     this.event.loading = false;
+    //   }        
+    // },
     async downloadExcel() {
       let params = {
         "page_name": "sensor_event",
