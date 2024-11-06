@@ -3,7 +3,7 @@
     <template v-slot>
       <div class="main-panel">
         <v-toolbar color="light-blue darken-4" dark flat>
-          <v-toolbar-title>화재감지기 상태</v-toolbar-title>
+          <v-toolbar-title>운전자 관리</v-toolbar-title>
         </v-toolbar>
 
         <v-card flat height="100">
