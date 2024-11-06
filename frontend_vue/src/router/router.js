@@ -51,6 +51,13 @@ const routes = [{
     }
   ]
 },
+
+/* 
+  -데이터 관리
+    ㄴ차량관리
+    ㄴ운전자 관리
+    ㄴ이벤트 관리
+ */
 {
   path: '/manage',
   name: 'manage',
@@ -61,7 +68,7 @@ const routes = [{
     {
       path: 'vehicleManage',
       name: 'vehicleManage',
-      component: View.SensorManage,
+      component: View.VehicleManage,
       meta: { breadcrumb: [{ text: '관리', disabled: true }, { text: '차량 관리', disabled: true }] },
       props: true,
       beforeEnter
@@ -69,7 +76,7 @@ const routes = [{
     {
       path: 'driverManage',
       name: 'driverManage',
-      component: View.RepeaterManage,
+      component: View.DriverManage,
       meta: { breadcrumb: [{ text: '관리', disabled: true }, { text: '운전자 관리', disabled: true }] },
       props: true,
       beforeEnter
@@ -77,7 +84,7 @@ const routes = [{
     {
       path: 'eventManage',
       name: 'eventManage',
-      component: View.ReceiverManage,
+      component: View.EventManage,
       meta: { breadcrumb: [{ text: '관리', disabled: true }, { text: '이벤트 관리', disabled: true }] },
       props: true,
       beforeEnter
@@ -85,42 +92,14 @@ const routes = [{
     
   ]
 },
+
+/* 
+  -보고서 관리
+    ㄴ통계 보고서
+ */
 {
-  path: '/manage',
-  name: 'manage',
-  component: View.SubView,
-  redirect: { name: 'sensor_manage' },
-  beforeEnter,
-  children: [
-    {
-      path: 'sensor_manage',
-      name: 'sensor_manage',
-      component: View.SensorManage,
-      meta: { breadcrumb: [{ text: '관리', disabled: true }, { text: '감지기 관리', disabled: true }] },
-      props: true,
-      beforeEnter
-    },
-    {
-      path: 'repeater_manage',
-      name: 'repeater_manage',
-      component: View.RepeaterManage,
-      meta: { breadcrumb: [{ text: '관리', disabled: true }, { text: '중계기 관리', disabled: true }] },
-      props: true,
-      beforeEnter
-    },
-    {
-      path: 'receiver_manage',
-      name: 'receiver_manage',
-      component: View.ReceiverManage,
-      meta: { breadcrumb: [{ text: '관리', disabled: true }, { text: '수신기 관리', disabled: true }] },
-      props: true,
-      beforeEnter
-    },
-  ]
-},
-{
-  path: '/monitor',
-  name: 'monitor',
+  path: '/report',
+  name: 'report',
   component: View.SubView,
   redirect: { name: 'sensor_event' },
   beforeEnter,
@@ -151,19 +130,57 @@ const routes = [{
     },
   ]
 },
-{
-  path: '/sensor_analysis',
-  name: 'sensor_analysis',
-  component: View.SensorAnalysis,
-  meta: { breadcrumb: [{ text: '데이터 분석', disabled: true }, { text: '이벤트 분석', disabled: true }] },
-  props: true,
-  beforeEnter
-},
+
+/* 
+  -사용자 관리
+ */
 {
   path: '/user_manage',
   name: 'user_manage',
   component: View.UserManage,
   meta: { breadcrumb: [{ text: '사용자', disabled: true }, { text: '사용자 관리', disabled: true }] },
+  props: true,
+  beforeEnter
+},
+
+// {
+//   path: '/manage',
+//   name: 'manage',
+//   component: View.SubView,
+//   redirect: { name: 'sensor_manage' },
+//   beforeEnter,
+//   children: [
+//     {
+//       path: 'sensor_manage',
+//       name: 'sensor_manage',
+//       component: View.SensorManage,
+//       meta: { breadcrumb: [{ text: '관리', disabled: true }, { text: '감지기 관리', disabled: true }] },
+//       props: true,
+//       beforeEnter
+//     },
+//     {
+//       path: 'repeater_manage',
+//       name: 'repeater_manage',
+//       component: View.RepeaterManage,
+//       meta: { breadcrumb: [{ text: '관리', disabled: true }, { text: '중계기 관리', disabled: true }] },
+//       props: true,
+//       beforeEnter
+//     },
+//     {
+//       path: 'receiver_manage',
+//       name: 'receiver_manage',
+//       component: View.ReceiverManage,
+//       meta: { breadcrumb: [{ text: '관리', disabled: true }, { text: '수신기 관리', disabled: true }] },
+//       props: true,
+//       beforeEnter
+//     },
+//   ]
+// },
+{
+  path: '/sensor_analysis',
+  name: 'sensor_analysis',
+  component: View.SensorAnalysis,
+  meta: { breadcrumb: [{ text: '데이터 분석', disabled: true }, { text: '이벤트 분석', disabled: true }] },
   props: true,
   beforeEnter
 },

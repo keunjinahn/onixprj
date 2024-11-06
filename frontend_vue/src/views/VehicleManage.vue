@@ -3,14 +3,14 @@
     <template v-slot>
       <div class="main-panel">
         <v-toolbar color="light-blue darken-4" dark flat>
-          <v-toolbar-title>화재감지기 상태</v-toolbar-title>
+          <v-toolbar-title>차량 관리</v-toolbar-title>
         </v-toolbar>
 
         <v-card flat height="100">
           <v-toolbar rounded dense class="elevation-1" height="100">
             <v-col cols="8">
               <v-text-field outlined dense hide-details
-                            placeholder="감지기 검색"
+                            placeholder="이름, 차량번호, 단말기번호를 입력하세요"
                             append-icon="mdi-magnify"
                             v-model="sensor.search"
                             @keydown.enter="getSensorEvent()"
@@ -29,9 +29,9 @@
               <v-btn depressed dark big
                       color="light-blue darken-2"
                       class="m-left"
-                      @click="downloadExcel()">
-                <v-icon small>mdi-arrow-down-bold-outline</v-icon>
-                <div class="ml-1">xls 다운로드</div>
+                      @click="uploadExcel()">
+                <v-icon>mdi-folder-upload</v-icon>
+                <div class="ml-1">폴더 업로드</div>
               </v-btn>
             </v-col>
           </v-toolbar>
@@ -45,7 +45,7 @@
           :server-items-length="sensor.total"
           :search="sensor.search"
           :items-per-page="5"
-          :footer-props="{'items-per-page-options': [5, 10, 15,20,25,30,-1]}"
+          :footer-props="{'items-per-page-options': [10, 20, 30, 40, -1]}"
           class="elevation-1 mt-4">
           <template v-slot:item="row">
             <tr @click="onSensorItemClick(row.item,row)" :class="{'row-active': row.item.id == sensor.selectedId}">
@@ -58,52 +58,12 @@
               <td >{{ String(row.item.system_id).padStart(3,'0') }}</td>
               <td >{{ String(row.item.repeater_id).padStart(3,'0') }}</td>
               <td >{{ String(row.item.sensor_id).padStart(3,'0') }}</td>
-              <td >
-                <div v-if="row.item.register_status" class="blue-circle"></div>
-                <div v-else class="red-circle"></div>
-              </td>
-              <td >
-                <div v-if="row.item.action_status" class="blue-circle"></div>
-                <div v-else class="red-circle"></div>
-              </td>
-              <td >
-                <div v-if="row.item.com_status" class="blue-circle"></div>
-                <div v-else class="red-circle"></div>
-              </td>
-              <td >
-                <div v-if="row.item.battery_status" class="blue-circle"></div>
-                <div v-else class="red-circle"></div>
-              </td>              
             </tr>
           </template>
         </v-data-table>
-        <v-toolbar color="light-blue darken-1" dark flat>
-          <v-toolbar-title>감지기 이벤트 상세</v-toolbar-title>
-        </v-toolbar>         
-        <v-data-table
-        :headers="event.headers"
-        :items="event.data"
-        :loading="event.loading"
-        :options.sync="event.options"
-        :server-items-length="event.total"
-        :items-per-page="5"
-        :footer-props="{'items-per-page-options': [5, 10, 15,20,25,30,-1]}"
-        class="elevation-1 mt-4">
-        <template v-slot:item="row">
-          <tr>
-            <td >{{ row.item._index }}</td>
-            <td >{{ row.item.event_datetime | moment('YYYY-MM-DD HH:mm:ss')}}</td>
-            <td >{{ row.item.event_idx }}</td>
-            <td >{{ row.item.sensor_value }}</td>
-            <td >{{ row.item.event.event_desc }}</td>
-            <td >{{ row.item.inout_id }}</td>
-          </tr>
-        </template>
-      </v-data-table>        
+
+        
       </div>
-
-
-
     </template>
   </main-layout> 
 </template>
@@ -161,6 +121,7 @@ export default {
     },
     async onSensorItemClick(item){
       if(item == null) return
+
       this.sensor.selectedId = item.id
       const { page, itemsPerPage, sortBy, sortDesc } = this.event.options;
       try {
@@ -195,7 +156,7 @@ export default {
         this.event.loading = false;
       }        
     },
-    async downloadExcel() {
+    async uploadExcel() {
       let params = {
         "page_name": "sensor_event",
         "headers": (() => {
@@ -225,9 +186,7 @@ export default {
         link.click()
       })
       .catch(() => console.log('error: excel download error'))
-    }
-    
-
+    },
   },
   mounted() {
     this.getSensorEvent()
@@ -252,7 +211,7 @@ export default {
         selectedId: '',
         headers: [
           {text: 'No.', value: 'id', sortable: false, align: 'center', width: 20 },
-          {text: "이벤트 시간", value: "event_datetime", sortable: false,align: 'center', width: 80}, 
+          {text: "파일 이름", value: "event_datetime", sortable: false,align: 'center', width: 80}, 
           {text: "고객 식별자", value: "fk_customer_idx",align: 'center', sortable: false, width: 60},
           {text: "고객명", value: "customer.customer_name",align: 'center', sortable: false, width: 40},
           {text: "수신기 타입", value: "receiver_type",align: 'center', sortable: false, width: 80},
@@ -260,13 +219,9 @@ export default {
           {text: "계통 번호", value: "system_id",align: 'center', sortable: false, width: 20},
           {text: "중계기 번호", value: "repeater_id",align: 'center', sortable: false, width: 20},
           {text: "감지기 번호", value: "sensor_id",align: 'center', sortable: false, width: 20},
-          {text: "등록 상태", value: "register_status",align: 'center', sortable: false, width: 20},
-          {text: "동작 상태", value: "action_status",align: 'center', sortable: false, width: 20},
-          {text: "통신 상태", value: "com_status",align: 'center', sortable: false, width: 20},
-          {text: "배터리 상태", value: "battery_status",align: 'center', sortable: false, width: 20},
         ],
         data: [],
-        options: {"page":1,"itemsPerPage":5,"sortBy":[],"sortDesc":[],"groupBy":[],"groupDesc":[],"mustSort":false,"multiSort":false},
+        options: {"page":1,"itemsPerPage":10,"sortBy":[],"sortDesc":[],"groupBy":[],"groupDesc":[],"mustSort":false,"multiSort":false},
         loading: false,
         search: '',
         total:0
@@ -285,6 +240,11 @@ export default {
         loading: false,
         search: '',
         total:0
+      },
+      addPopup: {
+        show: false,
+        loading:false,
+        popup_type: 'ADD',
       },      
       loading: false,
       selected_sensor:null

@@ -45,7 +45,7 @@
         </v-list-item-content>
       </v-list-item>
       <div class="subMenuWrapper">
-        <v-list class="py-0 subMenu" :class="{subMenuOpen: $route.path.startsWith('/monitor')}">
+        <v-list class="py-0 subMenu" :class="{subMenuOpen: $route.path.startsWith('/manage')}">
           <v-list-item dense :to="{name: navLinks[1].subLinks[0].route}" color="primary lighten-2">
             <v-list-item-content>
               <v-list-item-title class="pl-14">{{ navLinks[1].subLinks[0].text }}</v-list-item-title>
@@ -77,7 +77,7 @@
           </v-list-item-content>
         </v-list-item>
         <div class="subMenuWrapper">
-          <v-list class="py-0 subMenu" :class="{subMenuOpen: $route.path.startsWith('/manage')}">
+          <v-list class="py-0 subMenu" :class="{subMenuOpen: $route.path.startsWith('/report')}">
             <v-list-item dense :to="{name: navLinks[2].subLinks[0].route}" color="primary lighten-2">
               <v-list-item-content>
                 <v-list-item-title class="pl-14">{{ navLinks[2].subLinks[0].text }}</v-list-item-title>
@@ -145,16 +145,16 @@ export default {
         icon: "mdi-radio-tower",
         text: "데이터 관리",
         subLinks: [
-          { text: "차량 관리", route: "sensor_event"},
-          { text: "운전자 관리", route: "repeater_event"},
-          { text: "이벤트 관리", route: "event_list"},
+          { text: "차량 관리", route: "vehicleManage"},
+          { text: "운전자 관리", route: "driverManage"},
+          { text: "이벤트 관리", route: "eventManage"},
         ]
       },
       {
         icon: "mdi-sitemap",
         text: "보고서 관리",
         subLinks: [
-          { text: "통계 보고서", route: "sensor_manage"},
+          { text: "통계 보고서", route: "sensor_event"},
         ]
       },
       {
