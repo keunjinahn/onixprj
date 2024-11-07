@@ -97,6 +97,18 @@ def except_event_xl():
 
     return make_response(jsonify(result), 200)
 
+# @app.route('/upload-bump', methods=['GET'])
+# def upload_bump():
+#     path = os.getcwd() + '\\data\\all_bumps.csv'
+#     df = pd.read_csv(path)
+#     df['latitude'] = pd.to_numeric(df['latitude'], errors='coerce')
+#     df['longitude'] = pd.to_numeric(df['longitude'], errors='coerce')
+#     df.to_sql('tbbumpdata', con=db.engine, if_exists='append', index=False)
+
+#     result = {
+        
+#     }
+#     return make_response(jsonify(result), 200)
 
 manager.create_api(TbCarInfo
                    , results_per_page=10000

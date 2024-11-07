@@ -42,3 +42,17 @@ class TbEventLog(db.Model):
     createdTime = db.Column('createdTime', db.DateTime)
     driverInfo = db.relationship('TbDriverInfo')
     carInfo = db.relationship('TbCarInfo')
+
+class BumpData(db.Model):
+    __tablename__ = 'tbbumpdata'
+
+    idx = db.Column('idx', db.Integer, primary_key=True)
+    latitude = db.Column('latitude', db.Float)
+    longitude = db.Column('longitude', db.Float)
+    category = db.Column('category', db.String)
+    height = db.Column('height', db.Float)
+    width = db.Column('width', db.Float)
+    extention = db.Column('extention', db.Float)
+    roadCategory = db.Column('roadCategory', db.String)
+    continuaous = db.Column('continuaous', db.Boolean)
+    address = db.Column('address', db.String)
