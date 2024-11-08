@@ -10,18 +10,17 @@
           <v-toolbar rounded dense class="elevation-1" height="100">
             <v-col cols="8">
               <v-text-field outlined dense hide-details
-                            placeholder="감지기 검색"
+                            placeholder="이름, 차량번호, 회사명 등을 입력하세요"
                             append-icon="mdi-magnify"
                             v-model="sensor.search"
-                            @keydown.enter="getSensorEvent()"
+                            @keydown.enter="getDriverInfo()"
                             class="m-right"
               />
             </v-col>
             <v-col cols="1">
               <v-btn depressed dark big
                       color="light-blue darken-2"
-                      @click="getSensorEvent()">
-                
+                      @click="getDriverInfo()">
                 <div class="ml-1">조회</div>
               </v-btn>
             </v-col>
@@ -29,9 +28,9 @@
               <v-btn depressed dark big
                       color="light-blue darken-2"
                       class="m-left"
-                      @click="downloadExcel()">
-                <v-icon small>mdi-arrow-down-bold-outline</v-icon>
-                <div class="ml-1">xls 다운로드</div>
+                      @click="addDriverBtn()">
+                <v-icon>mdi-plus</v-icon>
+                <div class="ml-1">운전자 등록</div>
               </v-btn>
             </v-col>
           </v-toolbar>
@@ -44,62 +43,21 @@
           :options.sync="sensor.options"
           :server-items-length="sensor.total"
           :search="sensor.search"
-          :items-per-page="5"
-          :footer-props="{'items-per-page-options': [5, 10, 15,20,25,30,-1]}"
+          :items-per-page="10"
+          :footer-props="{'items-per-page-options': [10, 20, 30, -1]}"
           class="elevation-1 mt-4">
           <template v-slot:item="row">
-            <tr @click="onSensorItemClick(row.item,row)" :class="{'row-active': row.item.id == sensor.selectedId}">
+            <!-- <tr @click="onSensorItemClick(row.item,row)" :class="{'row-active': row.item.id == sensor.selectedId}"> -->
+            <tr>
               <td >{{ row.item._index }}</td>
-              <td >{{ row.item.last_event_time | moment('YYYY-MM-DD HH:mm:ss')}}</td>
-              <td >{{ String(row.item.fk_customer_idx).padStart(5,'0') }}</td>
-              <td >{{ row.item.customer.customer_name }}</td>
-              <td >{{ $session.receiver_type_list.find(v=>v.code==row.item.receiver.receiver_type).name }}</td>
-              <td>{{ String(row.item.receiver_id).padStart(3,'0') }}</td>
-              <td >{{ String(row.item.system_id).padStart(3,'0') }}</td>
-              <td >{{ String(row.item.repeater_id).padStart(3,'0') }}</td>
-              <td >{{ String(row.item.sensor_id).padStart(3,'0') }}</td>
-              <td >
-                <div v-if="row.item.register_status" class="blue-circle"></div>
-                <div v-else class="red-circle"></div>
-              </td>
-              <td >
-                <div v-if="row.item.action_status" class="blue-circle"></div>
-                <div v-else class="red-circle"></div>
-              </td>
-              <td >
-                <div v-if="row.item.com_status" class="blue-circle"></div>
-                <div v-else class="red-circle"></div>
-              </td>
-              <td >
-                <div v-if="row.item.battery_status" class="blue-circle"></div>
-                <div v-else class="red-circle"></div>
-              </td>              
+              <td class="align-left">{{ row.item.driverName}}</td>
+              <td class="align-left">{{ row.item.company }}</td>
+              <td class="align-left">{{ row.item.workplace }}</td>
+              <td class="align-left">{{ row.item.createdTime | moment('YYYY-MM-DD HH:mm:ss') }}</td>
+              <td class="align-left">{{ row.item.modifiedTime | moment('YYYY-MM-DD HH:mm:ss') }}</td>   
             </tr>
           </template>
-        </v-data-table>
-        <v-toolbar color="light-blue darken-1" dark flat>
-          <v-toolbar-title>감지기 이벤트 상세</v-toolbar-title>
-        </v-toolbar>         
-        <v-data-table
-        :headers="event.headers"
-        :items="event.data"
-        :loading="event.loading"
-        :options.sync="event.options"
-        :server-items-length="event.total"
-        :items-per-page="5"
-        :footer-props="{'items-per-page-options': [5, 10, 15,20,25,30,-1]}"
-        class="elevation-1 mt-4">
-        <template v-slot:item="row">
-          <tr>
-            <td >{{ row.item._index }}</td>
-            <td >{{ row.item.event_datetime | moment('YYYY-MM-DD HH:mm:ss')}}</td>
-            <td >{{ row.item.event_idx }}</td>
-            <td >{{ row.item.sensor_value }}</td>
-            <td >{{ row.item.event.event_desc }}</td>
-            <td >{{ row.item.inout_id }}</td>
-          </tr>
-        </template>
-      </v-data-table>        
+        </v-data-table>    
       </div>
 
 
@@ -117,28 +75,27 @@ export default {
   },
   components: {},
   methods: {
-
-    async getSensorEvent() {
-
+    /* 운전자정보 조회 */
+    async getDriverInfo() {
       const { page, itemsPerPage, sortBy, sortDesc } = this.sensor.options;
       try {
         let filters_or = []
         let filters_and = []
-        let order_by = []
+        // let order_by = []
         if (this.sensor.search) {
-          filters_or.push({name: 'customer', op: 'has', val: {name: "customer_name", op: "like", val: `%${this.sensor.search}%`}});
+          filters_or.push({name: "driverName", op: "like", val: `%${this.sensor.search}%`});
         }
-        if (sortBy.length) {
-          for (let i=0; i<sortBy.length; i++) {
-            order_by.push({field: sortBy[i], direction: sortDesc[i] ? 'desc' : 'asc'})
-          }
-        }else{
-          order_by.push({field: "last_event_time", direction: 'desc'})
-        }
+        // if (sortBy.length) {
+        //   for (let i=0; i<sortBy.length; i++) {
+        //     order_by.push({field: sortBy[i], direction: sortDesc[i] ? 'desc' : 'asc'})
+        //   }
+        // }else{
+        //   order_by.push({field: "driverName", direction: 'desc'})
+        // }
 
         let q = {
           filters: [{or: filters_or}, {and: filters_and}],
-          order_by
+          // order_by
         }
         let params = {
           q: q,
@@ -147,7 +104,7 @@ export default {
 
         };
 
-        let { data } = await this.$http.get("sensor_event", { params });
+        let { data } = await this.$http.get("driver-list", { params });
         this.sensor.total = data.num_results;
         this.sensor.data = data.objects.map((v, i) => {
           v._index = i + (page - 1) * itemsPerPage + 1;
@@ -159,6 +116,7 @@ export default {
         this.sensor.loading = false;
       }   
     },
+
     async onSensorItemClick(item){
       if(item == null) return
       this.sensor.selectedId = item.id
@@ -195,7 +153,7 @@ export default {
         this.event.loading = false;
       }        
     },
-    async downloadExcel() {
+    async addDriverBtn() {
       let params = {
         "page_name": "sensor_event",
         "headers": (() => {
@@ -230,12 +188,12 @@ export default {
 
   },
   mounted() {
-    this.getSensorEvent()
+    this.getDriverInfo()
   },
   watch: {
     "sensor.options": {
       handler() {
-        this.getSensorEvent()
+        this.getDriverInfo()
       },
       deep: true,
     },
@@ -252,21 +210,14 @@ export default {
         selectedId: '',
         headers: [
           {text: 'No.', value: 'id', sortable: false, align: 'center', width: 20 },
-          {text: "이벤트 시간", value: "event_datetime", sortable: false,align: 'center', width: 80}, 
-          {text: "고객 식별자", value: "fk_customer_idx",align: 'center', sortable: false, width: 60},
-          {text: "고객명", value: "customer.customer_name",align: 'center', sortable: false, width: 40},
-          {text: "수신기 타입", value: "receiver_type",align: 'center', sortable: false, width: 80},
-          {text: "수신기 번호", value: "receiver_id",align: 'center', sortable: false, width: 20},
-          {text: "계통 번호", value: "system_id",align: 'center', sortable: false, width: 20},
-          {text: "중계기 번호", value: "repeater_id",align: 'center', sortable: false, width: 20},
-          {text: "감지기 번호", value: "sensor_id",align: 'center', sortable: false, width: 20},
-          {text: "등록 상태", value: "register_status",align: 'center', sortable: false, width: 20},
-          {text: "동작 상태", value: "action_status",align: 'center', sortable: false, width: 20},
-          {text: "통신 상태", value: "com_status",align: 'center', sortable: false, width: 20},
-          {text: "배터리 상태", value: "battery_status",align: 'center', sortable: false, width: 20},
+          {text: "운전자", value: "driverName", sortable: false,align: 'left', width: 80}, 
+          {text: "회사", value: "company",align: 'left', sortable: false, width: 100},
+          {text: "workplace", value: "workplace",align: 'left', sortable: false, width: 40},
+          {text: "생성일", value: "createdTime",align: 'left', sortable: false, width: 80},
+          {text: "수정일", value: "modifiedTime",align: 'left', sortable: false, width: 80},
         ],
         data: [],
-        options: {"page":1,"itemsPerPage":5,"sortBy":[],"sortDesc":[],"groupBy":[],"groupDesc":[],"mustSort":false,"multiSort":false},
+        options: {"page":1,"itemsPerPage":10,"sortBy":[],"sortDesc":[],"groupBy":[],"groupDesc":[],"mustSort":false,"multiSort":false},
         loading: false,
         search: '',
         total:0
@@ -281,7 +232,7 @@ export default {
           {text: "입출력단 번호", value: "inout_id",align: 'center', sortable: false, width: 40},          
         ],
         data: [],
-        options: {"page":1,"itemsPerPage":5,"sortBy":[],"sortDesc":[],"groupBy":[],"groupDesc":[],"mustSort":false,"multiSort":false},
+        options: {"page":1,"itemsPerPage":10,"sortBy":[],"sortDesc":[],"groupBy":[],"groupDesc":[],"mustSort":false,"multiSort":false},
         loading: false,
         search: '',
         total:0
@@ -318,5 +269,8 @@ td {
   margin-left:10px;
   margin-bottom: 10px;
   width:48%;
+}
+.align-left{
+  text-align: left;
 }
 </style>

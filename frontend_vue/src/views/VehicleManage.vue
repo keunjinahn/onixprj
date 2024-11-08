@@ -21,7 +21,6 @@
               <v-btn depressed dark big
                       color="light-blue darken-2"
                       @click="getCarInfo()">
-                
                 <div class="ml-1">조회</div>
               </v-btn>
             </v-col>
@@ -52,13 +51,6 @@
             <tr>
               <td >{{ row.item._index }}</td>
               <td style="text-align: left" >{{ row.item.carNumber}}</td>
-              <!-- <td >{{ String(row.item.fk_customer_idx).padStart(5,'0') }}</td>
-              <td >{{ row.item.customer.customer_name }}</td>
-              <td >{{ $session.receiver_type_list.find(v=>v.code==row.item.receiver.receiver_type).name }}</td>
-              <td>{{ String(row.item.receiver_id).padStart(3,'0') }}</td>
-              <td >{{ String(row.item.system_id).padStart(3,'0') }}</td>
-              <td >{{ String(row.item.repeater_id).padStart(3,'0') }}</td>
-              <td >{{ String(row.item.sensor_id).padStart(3,'0') }}</td> -->
             </tr>
           </template>
         </v-data-table>
@@ -78,7 +70,7 @@ export default {
   },
   components: {},
   methods: {
-    /* 차량정보 가져오기 */
+    /* 차량정보 조회 */
     async getCarInfo() {
       const { page, itemsPerPage, sortBy, sortDesc } = this.sensor.options;
       try {
