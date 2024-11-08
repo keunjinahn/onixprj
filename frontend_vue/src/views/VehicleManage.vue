@@ -13,14 +13,14 @@
                             placeholder="이름, 차량번호, 단말기번호를 입력하세요"
                             append-icon="mdi-magnify"
                             v-model="sensor.search"
-                            @keydown.enter="getSensorEvent()"
+                            @keydown.enter="getCarInfo()"
                             class="m-right"
               />
             </v-col>
             <v-col cols="1">
               <v-btn depressed dark big
                       color="light-blue darken-2"
-                      @click="getSensorEvent()">
+                      @click="getCarInfo()">
                 
                 <div class="ml-1">조회</div>
               </v-btn>
@@ -48,16 +48,17 @@
           :footer-props="{'items-per-page-options': [10, 20, 30, 40, -1]}"
           class="elevation-1 mt-4">
           <template v-slot:item="row">
-            <tr @click="onSensorItemClick(row.item,row)" :class="{'row-active': row.item.id == sensor.selectedId}">
+            <!-- <tr @click="onSensorItemClick(row.item,row)" :class="{'row-active': row.item.id == sensor.selectedId}"> -->
+            <tr>
               <td >{{ row.item._index }}</td>
-              <td >{{ row.item.last_event_time | moment('YYYY-MM-DD HH:mm:ss')}}</td>
-              <td >{{ String(row.item.fk_customer_idx).padStart(5,'0') }}</td>
+              <td style="text-align: left" >{{ row.item.carNumber}}</td>
+              <!-- <td >{{ String(row.item.fk_customer_idx).padStart(5,'0') }}</td>
               <td >{{ row.item.customer.customer_name }}</td>
               <td >{{ $session.receiver_type_list.find(v=>v.code==row.item.receiver.receiver_type).name }}</td>
               <td>{{ String(row.item.receiver_id).padStart(3,'0') }}</td>
               <td >{{ String(row.item.system_id).padStart(3,'0') }}</td>
               <td >{{ String(row.item.repeater_id).padStart(3,'0') }}</td>
-              <td >{{ String(row.item.sensor_id).padStart(3,'0') }}</td>
+              <td >{{ String(row.item.sensor_id).padStart(3,'0') }}</td> -->
             </tr>
           </template>
         </v-data-table>
@@ -77,28 +78,27 @@ export default {
   },
   components: {},
   methods: {
-
-    async getSensorEvent() {
-
+    /* 차량정보 가져오기 */
+    async getCarInfo() {
       const { page, itemsPerPage, sortBy, sortDesc } = this.sensor.options;
       try {
         let filters_or = []
         let filters_and = []
-        let order_by = []
+        // let order_by = []
         if (this.sensor.search) {
-          filters_or.push({name: 'customer', op: 'has', val: {name: "customer_name", op: "like", val: `%${this.sensor.search}%`}});
+          filters_or.push({name: "carNumber", op: "like", val: `%${this.sensor.search}%`});
         }
-        if (sortBy.length) {
-          for (let i=0; i<sortBy.length; i++) {
-            order_by.push({field: sortBy[i], direction: sortDesc[i] ? 'desc' : 'asc'})
-          }
-        }else{
-          order_by.push({field: "last_event_time", direction: 'desc'})
-        }
+        // if (sortBy.length) {
+        //   for (let i=0; i<sortBy.length; i++) {
+        //     order_by.push({field: sortBy[i], direction: sortDesc[i] ? 'desc' : 'asc'})
+        //   }
+        // }else{
+        //   order_by.push({field: "carNumber", direction: 'desc'})
+        // }
 
         let q = {
           filters: [{or: filters_or}, {and: filters_and}],
-          order_by
+          // order_by
         }
         let params = {
           q: q,
@@ -107,7 +107,7 @@ export default {
 
         };
 
-        let { data } = await this.$http.get("sensor_event", { params });
+        let { data } = await this.$http.get("car-list", { params });
         this.sensor.total = data.num_results;
         this.sensor.data = data.objects.map((v, i) => {
           v._index = i + (page - 1) * itemsPerPage + 1;
@@ -119,6 +119,7 @@ export default {
         this.sensor.loading = false;
       }   
     },
+
     async onSensorItemClick(item){
       if(item == null) return
 
@@ -189,12 +190,12 @@ export default {
     },
   },
   mounted() {
-    this.getSensorEvent()
+    this.getCarInfo()
   },
   watch: {
     "sensor.options": {
       handler() {
-        this.getSensorEvent()
+        this.getCarInfo()
       },
       deep: true,
     },
@@ -211,14 +212,7 @@ export default {
         selectedId: '',
         headers: [
           {text: 'No.', value: 'id', sortable: false, align: 'center', width: 20 },
-          {text: "파일 이름", value: "event_datetime", sortable: false,align: 'center', width: 80}, 
-          {text: "고객 식별자", value: "fk_customer_idx",align: 'center', sortable: false, width: 60},
-          {text: "고객명", value: "customer.customer_name",align: 'center', sortable: false, width: 40},
-          {text: "수신기 타입", value: "receiver_type",align: 'center', sortable: false, width: 80},
-          {text: "수신기 번호", value: "receiver_id",align: 'center', sortable: false, width: 20},
-          {text: "계통 번호", value: "system_id",align: 'center', sortable: false, width: 20},
-          {text: "중계기 번호", value: "repeater_id",align: 'center', sortable: false, width: 20},
-          {text: "감지기 번호", value: "sensor_id",align: 'center', sortable: false, width: 20},
+          {text: "차량 번호", value: "carNumber", sortable: false, align: 'left', width: 400}, 
         ],
         data: [],
         options: {"page":1,"itemsPerPage":10,"sortBy":[],"sortDesc":[],"groupBy":[],"groupDesc":[],"mustSort":false,"multiSort":false},
