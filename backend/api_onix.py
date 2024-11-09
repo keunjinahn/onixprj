@@ -99,10 +99,8 @@ def except_event_xl():
 
 # @app.route('/upload-bump', methods=['GET'])
 # def upload_bump():
-#     path = os.getcwd() + '\\data\\all_bumps.csv'
+#     path = os.getcwd() + '\\data\\result.csv'
 #     df = pd.read_csv(path)
-#     df['latitude'] = pd.to_numeric(df['latitude'], errors='coerce')
-#     df['longitude'] = pd.to_numeric(df['longitude'], errors='coerce')
 #     df.to_sql('tbbumpdata', con=db.engine, if_exists='append', index=False)
 
 #     result = {
